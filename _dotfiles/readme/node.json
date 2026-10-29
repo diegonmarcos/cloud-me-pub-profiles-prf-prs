@@ -5,6 +5,7 @@
   "label": "cloud-me-pub-profiles-prf-prs",
   "code": "1.2.1.1.4",
   "kind": "repo",
+  "variant": "repo",
   "description": "Professional and personal profiles (split from Me-Profiles)",
   "visibility": "public",
   "url": "https://github.com/diegonmarcos/cloud-me-pub-profiles-prf-prs",
