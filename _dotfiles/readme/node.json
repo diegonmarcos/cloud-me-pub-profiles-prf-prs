@@ -1,0 +1,85 @@
+{
+  "schema": "readme-node/v1",
+  "generated_by": "_git-repos-master readme-render.js nodeData() from projects-repos.json; DO NOT EDIT (node repos-sot.js sync-readmes)",
+  "name": "cloud-me-pub-profiles-prf-prs",
+  "label": "cloud-me-pub-profiles-prf-prs",
+  "code": "1.2.1.1.4",
+  "kind": "repo",
+  "description": "Professional and personal profiles (split from Me-Profiles)",
+  "visibility": "public",
+  "url": "https://github.com/diegonmarcos/cloud-me-pub-profiles-prf-prs",
+  "developer": "Leaf.y",
+  "farm": "1.2.Cloud-me/Pub/Profiles",
+  "breadcrumb": [
+    {
+      "code": "1",
+      "kind": "area",
+      "label": "Unix",
+      "icon": "🐧"
+    },
+    {
+      "code": "1.2",
+      "kind": "project",
+      "label": "Cloud-Me",
+      "icon": "🙋"
+    },
+    {
+      "code": "1.2.1",
+      "kind": "subcategory",
+      "label": "Pub",
+      "icon": ""
+    },
+    {
+      "code": "1.2.1.1",
+      "kind": "family",
+      "label": "Profiles",
+      "icon": ""
+    }
+  ],
+  "hub": {
+    "name": "cloud-me-pub-profiles-___",
+    "code": "1.2.1.1.0",
+    "url": "https://github.com/diegonmarcos/cloud-me-pub-profiles-___"
+  },
+  "base_dir": "git",
+  "members": [],
+  "tree": [
+    "├── 0_deployer (submodule)",
+    "├── 0_hub/",
+    "│   └── cloud-me-pub-profiles-___ (submodule)",
+    "├── b_Profiles/",
+    "│   ├── cv_pdf/",
+    "│   │   ├── 0.spec/",
+    "│   │   ├── 1.ops/",
+    "│   │   ├── assets/",
+    "│   │   ├── dist/",
+    "│   │   ├── public/",
+    "│   │   └── src/",
+    "│   ├── cv_web/",
+    "│   │   ├── 0.spec/",
+    "│   │   ├── 1.ops/",
+    "│   │   ├── dist/",
+    "│   │   ├── public/",
+    "│   │   └── src/",
+    "│   ├── landpage/",
+    "│   │   ├── dist/",
+    "│   │   ├── public/",
+    "│   │   └── src/",
+    "│   ├── myprofile/",
+    "│   │   ├── .svelte-kit/",
+    "│   │   ├── 0.spec/",
+    "│   │   ├── dist/",
+    "│   │   ├── public/",
+    "│   │   ├── src/",
+    "│   │   └── static/",
+    "│   └── mySocials/",
+    "│       ├── dist/",
+    "│       └── src/",
+    "└── c_Circus/",
+    "    └── myAstro/",
+    "        ├── dist/",
+    "        ├── myAstro_life_old/",
+    "        ├── public/",
+    "        └── src/"
+  ]
+}
