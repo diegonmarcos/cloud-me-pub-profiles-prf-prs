@@ -13,7 +13,7 @@ import json
 import os
 import glob
 
-REPO = "diegonmarcos/front-assets-cdn"
+REPO = "diegonmarcos/cloudy_db_assets-cdn"
 PROJECT = "b_Media/mySocials"
 CDN_BASE = f"https://cdn.jsdelivr.net/gh/{REPO}@main/{PROJECT}/static/media"
 CDN_DIR = os.path.expanduser(f"~/git/front-assets-cdn/{PROJECT}/static/media")
