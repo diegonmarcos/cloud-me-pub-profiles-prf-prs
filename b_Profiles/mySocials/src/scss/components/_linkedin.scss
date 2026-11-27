@@ -371,8 +371,9 @@ $li-hover: rgba(255, 255, 255, 0.06);  // row/action hover
     border-radius: 50%; background: rgba(0, 0, 0, 0.65); display: flex; align-items: center; justify-content: center; pointer-events: none;
     svg { width: 18px; height: 18px; }
   }
-  &__title { font-weight: 600; font-size: 13px; line-height: 1.35; color: $li-text; }
+  &__title { min-width: 0; overflow-wrap: anywhere; font-weight: 600; font-size: 13px; line-height: 1.35; color: $li-text; }
 }
+.li-item > div { min-width: 0; }
 .li-chips { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; }
 .li-chip {
   display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
