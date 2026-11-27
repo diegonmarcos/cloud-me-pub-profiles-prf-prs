@@ -66,7 +66,9 @@
     img.setAttribute('src', t.src);
   }
   function thumbVideo(v) {
-    var t = thumbOf(v.getAttribute('src') || (v.querySelector('source') || {}).src || '');
+    var vs = v.getAttribute('src') || (v.querySelector('source') || {}).src || '';
+    var t = thumbOf(vs);
+    if (!vs && !v.getAttribute('poster')) v.setAttribute('poster', BLANK); // the story viewer's video before its first tap
     if (v.id !== 'ig-story-vid') v.setAttribute('preload', 'none');
     if (t && !v.getAttribute('poster')) v.setAttribute('poster', t.src);
   }

@@ -49,7 +49,7 @@ const SKIP = /(fonts\.googleapis\.com|fonts\.gstatic\.com|analytics\.diegonmarco
         window.scrollTo(0, 0);
       });
       for (let i = 0; i < 30 && !crashed; i++) { // lazy images settle
-        const pending = await pg.evaluate(() => [...document.images].filter(i => !i.complete && i.currentSrc && i.checkVisibility && i.checkVisibility()).length).catch(() => -1);
+        const pending = await pg.evaluate(() => [...document.images].filter(i => !i.complete && i.currentSrc && i.checkVisibility && i.checkVisibility() && i.getBoundingClientRect().right > 0 && i.getBoundingClientRect().left < innerWidth).length).catch(() => -1);
         if (pending === 0) break;
         await pg.waitForTimeout(500);
       }
@@ -62,7 +62,7 @@ const SKIP = /(fonts\.googleapis\.com|fonts\.gstatic\.com|analytics\.diegonmarco
           else if (i.complete && i.naturalWidth === 0) o.broken.push(s.slice(0, 160) || '(no src)');
           if (/\.(mp4|webm|mov)(\?|$)/i.test(s)) o.videoAsImg.push(s.slice(0, 160));
           if ((i.getAttribute('data-mt') === '1' || /mt-[0-9a-f]{12}\.webp/.test(s)) && (!i.getAttribute('width') || !i.getAttribute('height'))) o.noDim.push(s.slice(0, 100));
-          if (!i.complete && s && i.checkVisibility && i.checkVisibility()) o.pending.push(s.slice(0, 160));
+          if (!i.complete && s && i.checkVisibility && i.checkVisibility()) { const r = i.getBoundingClientRect(); if (r.right > 0 && r.left < innerWidth) o.pending.push(s.slice(0, 160)); } // off-screen in a horizontal strip: lazy, loads on swipe
         }
         for (const v of document.querySelectorAll('video')) {
           o.videos++;
