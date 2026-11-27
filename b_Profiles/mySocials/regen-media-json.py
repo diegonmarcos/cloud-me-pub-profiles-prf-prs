@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate mySocials instagram.json media refs from the CDN asset folder.
 
-Source of truth = the image files present under front-assets-cdn (the "fake CDN",
+Source of truth = the image files present under cloudy_db_assets-cdn (the "fake CDN",
 served via jsDelivr). Re-run this after adding more media (e.g. the full stories
 batch pulled on wifi) — it rebuilds each section's array from whatever files exist
 and rewrites `media` to the jsDelivr URL. Captions/times are carried over from the
@@ -16,7 +16,7 @@ import glob
 REPO = "diegonmarcos/cloudy_db_assets-cdn"
 PROJECT = "b_Media/mySocials"
 CDN_BASE = f"https://cdn.jsdelivr.net/gh/{REPO}@main/{PROJECT}/static/media"
-CDN_DIR = os.path.expanduser(f"~/git/front-assets-cdn/{PROJECT}/static/media")
+CDN_DIR = os.path.expanduser(f"~/git/cloudy_db_assets-cdn/{PROJECT}/static/media")
 JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src/data/instagram.json")
 
 IMG_EXT = {"jpg", "jpeg", "png", "webp"}          # rendered via <img>

@@ -1558,7 +1558,7 @@ function renderMySocials(): void {
     ] },
     { label: 'Music', cards: [
       { theme: 'tidal', label: 'TIDAL', meta: tidalD ? `${tidalD.profile.playlists} playlists` : 'playlists', color: '#00ffff', imgs: [] },
-      { theme: 'vinyl', label: 'Vinyl', meta: 'record store · 3D', color: '#c17f24', imgs: (vinylD?.vinyls || []).slice(0, 3).map(v => vinylCover(v.mbid)) },
+      { theme: 'vinyl', label: 'Vinyl', meta: 'record store · 3D', color: '#c17f24', imgs: (vinylD?.vinyls || []).slice(0, 3).map(v => v.cover || vinylCover(v.mbid)) },
     ] },
     { label: 'Books', cards: [
       { theme: 'shelf', label: 'Shelf', meta: 'book shelf · 3D', color: '#8b6914', imgs: (shelfD?.books || []).slice(0, 3).map(b => bookCover(b.isbn)) },
@@ -1793,7 +1793,7 @@ function makeLabelTexture(THREE: Record<string, unknown>, text: string, opts: { 
 // ─── SHELTER ─────────────────────────────────────────────────────────────────
 
 interface ShelfBook { title: string; author: string; isbn: string; spine: string; }
-interface ShelfVinyl { title: string; artist: string; year: number; mbid: string; color: string; }
+interface ShelfVinyl { title: string; artist: string; year: number; mbid: string; cover?: string; color: string; }
 interface ShelfData { books: ShelfBook[]; vinyls: ShelfVinyl[]; }
 
 // Darken a "#rrggbb" colour by `factor` (0..1) and return it as a 0xRRGGBB number,
@@ -2036,7 +2036,7 @@ function renderShelf(): void {
 
 // ─── VINYL ───────────────────────────────────────────────────────────────────
 
-interface VinylRecord { title: string; artist: string; year: number; mbid: string; color: string; }
+interface VinylRecord { title: string; artist: string; year: number; mbid: string; cover?: string; color: string; }
 interface VinylData { vinyls: VinylRecord[]; }
 
 interface BarCellarWine { name: string; producer: string; year: number; region: string; variety: string; foil: string; glass: string; }
@@ -2194,7 +2194,7 @@ function renderVinyl(): void {
 
         scene.add(group as unknown as object);
         vinylMeshes.push({ group, sleeve, disc, x: vx, y: vy, z: vz });
-        loader.load(`https://coverartarchive.org/release/${v.mbid}/front-250`, (tex) => {
+        loader.load(v.cover || `https://coverartarchive.org/release/${v.mbid}/front-250`, (tex) => {
           (tex as { minFilter: number }).minFilter = T.LinearFilter;
           sleeveMats[4] = new T.MeshLambertMaterial({ map: tex });
           sleeve.material = sleeveMats;
@@ -2755,7 +2755,7 @@ function renderTheater(): void {
   }
 
   // Lazy-load Three.js from CDN (no IPv6/unpkg)
-  const THREE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/three.min.js';
+  const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
   const THREE_NS_KEY = '__THREE_r169__';
 
   function loadThree(cb: (T: Record<string, unknown>) => void): void {
@@ -3140,6 +3140,7 @@ function themeFromFilename(): Theme | null {
 // (everything except the 3 Instagram account pages, which do a real page load)
 // need their target theme's stylesheet lazy-loaded on first switch.
 function cssKeyFor(theme: Theme): string {
+  if (theme === 'theater') return 'shelf'; // theater has no sheet of its own: it reuses the shelf one (#1950)
   return theme.startsWith('instagram-') ? 'instagram' : theme;
 }
 function ensureThemeCss(theme: Theme): void {

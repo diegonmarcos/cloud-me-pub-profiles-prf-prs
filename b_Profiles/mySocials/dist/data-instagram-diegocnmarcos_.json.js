@@ -17,9 +17,9 @@
   },
   "posts": [
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocnmarcos_/posts/post-1.webp",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocnmarcos_/posts/post-1.webp",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocnmarcos_/posts/post-1.webp"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocnmarcos_/posts/post-1.webp"
       ],
       "caption": "Louvre Museum, Paris \u2014 Jan 25, 2024",
       "time": "",

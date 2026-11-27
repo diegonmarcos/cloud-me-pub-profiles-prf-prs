@@ -1,0 +1,55 @@
+# mySocials media link checker (#1950). Fails on any broken image, video, source, CSS background, stylesheet, script or
+# fetch across every page (Playwright, 412x915, scrolls all lazy content). Checks the committed dist on every push and the
+# LIVE site daily. The mutation step proves the checker goes red: a copy of dist with a dead asset path must fail.
+# `red: true` (manual run) skips the inversion, so the run itself ends red on the mutated copy.
+name: mySocials links
+on:
+  push:
+    paths: ['b_Profiles/mySocials/**', '.github/workflows/mysocials-links.yml']
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      red:
+        description: 'Run the checker on a deliberately broken copy and let the run fail (mutation proof)'
+        type: boolean
+        default: false
+      live:
+        description: 'Also check the live site'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: b_Profiles/mySocials
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm i --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Check dist (every page)
+        if: ${{ !inputs.red }}
+        run: node test-media-links.js --out "$RUNNER_TEMP/dist-report.json" || node test-media-links.js --out "$RUNNER_TEMP/dist-report.json"
+      - name: Mutation, the checker must go red on a dead asset
+        run: |
+          rm -rf "$RUNNER_TEMP/dist-mut" && cp -r dist "$RUNNER_TEMP/dist-mut"
+          sed -i 's#facebook-diegonmarcos/posts/455362317817387.jpg#facebook-diegonmarcos/posts/GONE-1950.jpg#; s#/covers/vinyl/bee5e0cd-1767-4a8e-9578-6455e87ba60b.jpg#/covers/vinyl/GONE-1950.jpg#' "$RUNNER_TEMP"/dist-mut/data-*.json.js
+          grep -c GONE-1950 "$RUNNER_TEMP"/dist-mut/data-*.json.js | grep -v ':0' || { echo 'mutation did not apply'; exit 2; }
+          if [ "${{ inputs.red }}" = "true" ]; then
+            node test-media-links.js --dist "$RUNNER_TEMP/dist-mut"
+          else
+            if node test-media-links.js --dist "$RUNNER_TEMP/dist-mut"; then echo 'checker stayed green on a dead asset'; exit 1; fi
+            echo 'mutation went red, as required'
+          fi
+      - name: Check the live site
+        if: ${{ github.event_name == 'schedule' || inputs.live }}
+        run: node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json" || node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json"

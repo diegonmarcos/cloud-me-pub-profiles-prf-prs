@@ -17,63 +17,63 @@
   },
   "posts": [
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-1.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-1.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-1.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-1.jpeg"
       ],
       "caption": "boxing",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-2.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-2.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-2.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-2.jpeg"
       ],
       "caption": "Buffalo Stance, http://society6.com/Turckart",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-3.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-3.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-3.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-3.jpeg"
       ],
       "caption": "#Discarded_butnot_forgotten on Instagram: “🥀 Featured Artist of the day @abandoned_newengland visit their feed and show some love‼️🥀 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ 🔝Photo selected~…”",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-4.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-4.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-4.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-4.jpeg"
       ],
       "caption": "makret_",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-5.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-5.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-5.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-5.jpeg"
       ],
       "caption": "pc_",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-7.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-7.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-7.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-7.jpeg"
       ],
       "caption": "Unleash Your Creativity with Orbiting Ideas",
       "time": "",
       "location": ""
     },
     {
-      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-8.jpeg",
+      "media": "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-8.jpeg",
       "media_all": [
-        "https://cdn.jsdelivr.net/gh/diegonmarcos/front-assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-8.jpeg"
+        "https://cdn.jsdelivr.net/gh/diegonmarcos/cloudy_db_assets-cdn@main/b_Media/mySocials/static/media/diegocmarcos_/posts/post-8.jpeg"
       ],
       "caption": "#ケセランパサラン #keseranpasaran #ケセパサ #music #musician #live #concert #liveconcert #guitar #kazoo #カズー #アコースティックユニット #アコースティックギター #アコギ #女性ボーカル #音楽好きな",
       "time": "",
