@@ -56,7 +56,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A b_Profiles/mySocials/src/media-t b_Profiles/mySocials/src/js/mysocials-media-manifest.js b_Profiles/mySocials/dist b_Profiles/mySocials/media-report.json
+          git add -A src/media-t src/js/mysocials-media-manifest.js dist media-report.json
           if git diff --cached --quiet; then echo 'nothing to commit'; exit 0; fi
           git commit -m "mySocials: thumbnails, manifest and bundle regenerated (#1980) [skip ci]" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" -m "Claude-Session: https://claude.ai/code/session_0172rQF2sCRHaeMtr1E7pzQ8"
           for i in 1 2 3 4 5; do git pull --no-rebase --no-edit origin main && git push origin HEAD:main && exit 0; sleep 5; done
