@@ -27,6 +27,7 @@ URL_RE = re.compile(r'https://(?:cdn\.jsdelivr\.net/gh/diegonmarcos/(?:cloudy_db
 VIDEO_EXT = {"mp4", "webm", "mov", "mkv", "avi"}
 HERO_DIRS = ("profiles/", "linkedin/", "covers/")
 THUMB = 480
+RETRY = set()  # files the previous run could only placeholder: tried again
 HERO = 900
 
 
@@ -69,6 +70,7 @@ def first_frame(path, png):
 
 
 def build_one(rel, outdir, base, force):
+    force = force or rel in RETRY
     from PIL import Image, ImageOps
     dest = os.path.join(outdir, name_of(rel))
     ext = rel.rsplit(".", 1)[-1].lower()
@@ -112,7 +114,13 @@ def main():
     ap.add_argument("--no-dist", action="store_true")
     ap.add_argument("--skip-video", action="store_true", help="images first (fast); videos in a later run")
     a = ap.parse_args()
+    try:
+        RETRY.update(json.load(open(os.path.join(HERE, "media-report.json")))["bad"])
+    except Exception:  # noqa: BLE001
+        pass
     rels = relpaths()
+    if not a.skip_video and not shutil.which("ffmpeg"):
+        sys.exit("ffmpeg is required for the video posters")
     if a.skip_video:
         rels = [r for r in rels if r.rsplit(".", 1)[-1].lower() not in VIDEO_EXT]
     if a.limit:
