@@ -28,7 +28,7 @@ const SKIP = /(fonts\.googleapis\.com|fonts\.gstatic\.com|analytics\.diegonmarco
     base = `http://127.0.0.1:${server.address().port}/`;
   }
   base = base.replace(/\/?$/, '/');
-  const pages = fs.readdirSync(distDir).filter(f => /\.html$/.test(f) && !f.startsWith('_') && !/^(dd|health|social|dms)\.html$/.test(f))
+  const pages = fs.readdirSync(distDir).filter(f => /\.html$/.test(f) && !f.startsWith('_'))
     .map(f => f.replace(/\.html$/, '')).filter(f => !onlyArg || onlyArg.split(',').includes(f)).sort();
   const browser = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
   const report = {}; let failures = 0;
