@@ -50,6 +50,17 @@ jobs:
             if node test-media-links.js --dist "$RUNNER_TEMP/dist-mut"; then echo 'checker stayed green on a dead asset'; exit 1; fi
             echo 'mutation went red, as required'
           fi
+      - name: Mutation, the LinkedIn page checks must go red on a dead thumbnail (#1959)
+        run: |
+          rm -rf "$RUNNER_TEMP/dist-li" && cp -r dist "$RUNNER_TEMP/dist-li"
+          sed -i 's#linkedin/yt/pQgxiQAMTTo.jpg#linkedin/yt/GONE-1959.jpg#; s#linkedin/banner.jpg#linkedin/GONE-1959.jpg#' "$RUNNER_TEMP"/dist-li/data-linkedin.json.js
+          grep -c GONE-1959 "$RUNNER_TEMP"/dist-li/data-linkedin.json.js | grep -v '^0$' || { echo 'mutation did not apply'; exit 2; }
+          if [ "${{ inputs.red }}" = "true" ]; then
+            node test-media-links.js --dist "$RUNNER_TEMP/dist-li" --only linkedin
+          else
+            if node test-media-links.js --dist "$RUNNER_TEMP/dist-li" --only linkedin; then echo 'LinkedIn checks stayed green on a dead thumbnail'; exit 1; fi
+            echo 'LinkedIn mutation went red, as required'
+          fi
       - name: Check the live site
         if: ${{ github.event_name == 'schedule' || inputs.live }}
         run: node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json" || node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json"

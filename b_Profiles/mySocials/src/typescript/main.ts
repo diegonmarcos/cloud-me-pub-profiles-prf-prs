@@ -637,15 +637,48 @@ const LI_ICON = {
   send: '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
 };
 
+// Attached media of an entry (#1959): a thumbnail with a title. `yt` = YouTube id: lazy facade (thumbnail + play overlay,
+// the youtube-nocookie iframe is only created on tap, so it also works inside the Android WebView); the title is the
+// fallback link to YouTube. `url` without `yt` = plain link; neither = image only.
+interface LIMedia { thumb: string; title?: string; yt?: string; url?: string }
+const LI_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#fff"/></svg>';
+const LI_EXT = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+const LI_GEM = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9zM2 9h20M9 3l-2 6 5 12 5-12-2-6"/></svg>';
+
+function liMedia(m: LIMedia | undefined, alt: string, cover = false): string {
+  if (!m || !m.thumb) return '';
+  const title = m.title ?? '';
+  const img = `<img src="${esc(m.thumb)}" alt="${esc(title || alt)}" decoding="async">`;
+  const thumb = m.yt
+    ? `<button type="button" class="li-media__thumb li-yt" data-yt="${esc(m.yt)}" aria-label="Play ${esc(title || alt)}">${img}<span class="li-media__play">${LI_PLAY}</span></button>`
+    : m.url
+      ? `<a class="li-media__thumb" href="${esc(m.url)}" target="_blank" rel="noopener">${img}<span class="li-media__play">${LI_EXT}</span></a>`
+      : `<div class="li-media__thumb">${img}</div>`;
+  const label = title
+    ? (m.url ? `<a class="li-media__title" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(title)}</a>` : `<span class="li-media__title">${esc(title)}</span>`)
+    : '';
+  return `<div class="li-media${cover ? ' li-media--cover' : ''}">${thumb}${label}</div>`;
+}
+
+function liChips(skills?: string[]): string {
+  return skills?.length ? `<div class="li-chips">${skills.map(k => `<span class="li-chip">${LI_GEM}${esc(k)}</span>`).join('')}</div>` : '';
+}
+
+function liLogo(logo: string | undefined, fallback: string): string {
+  return logo
+    ? `<div class="li-item__logo li-item__logo--img"><img src="${esc(logo)}" alt="${esc(fallback)}" decoding="async"></div>`
+    : `<div class="li-item__logo">${esc(fallback)}</div>`;
+}
+
 // Real LinkedIn profile (parsed by extract_li.py -> PORTAL_DATA["linkedin"]).
 interface LIData {
-  profile: { name: string; headline: string; location: string; followers: number; connections: string; open_to_work: string; current: string; url: string; photo?: string };
+  profile: { name: string; headline: string; location: string; followers: number; connections: string; open_to_work: string; current: string; url: string; photo?: string; banner?: string; banner_alt?: string };
   about: string;
-  experience: { title: string; company: string; dates: string; location?: string; description?: string }[];
-  education: { school: string; degree: string; dates: string; description?: string }[];
+  experience: { title: string; company: string; dates: string; location?: string; description?: string; logo?: string; media?: LIMedia; skills?: string[] }[];
+  education: { school: string; degree: string; dates: string; description?: string; logo?: string; media?: LIMedia; skills?: string[] }[];
   skills: string[];
   languages: { name: string; proficiency: string }[];
-  projects: { title: string; description: string; url: string; dates: string }[];
+  projects: { title: string; description: string; url: string; dates: string; media?: LIMedia; skills?: string[] }[];
   featured?: { title: string; subtitle?: string; url: string }[];
 }
 
@@ -693,12 +726,14 @@ function renderLinkedin(): void {
   const expBody = d.experience.length
     ? d.experience.map(e => `
       <div class="li-item">
-        <div class="li-item__logo">${esc(e.company.charAt(0))}</div>
+        ${liLogo(e.logo, e.company.charAt(0))}
         <div>
           <div class="li-item__title">${esc(e.title)}</div>
           <div class="li-item__sub">${esc(e.company)}</div>
           <div class="li-item__meta">${esc(e.dates)}${e.location ? ' · ' + esc(e.location) : ''}</div>
           ${e.description ? `<div class="li-item__desc">${liClamp(formatLI(e.description))}</div>` : ''}
+          ${liMedia(e.media, e.title)}
+          ${liChips(e.skills)}
         </div>
       </div>`).join('')
     : needExport;
@@ -706,12 +741,14 @@ function renderLinkedin(): void {
   const eduBody = d.education.length
     ? d.education.map(e => `
       <div class="li-item">
-        <div class="li-item__logo">${esc(e.school.charAt(0))}</div>
+        ${liLogo(e.logo, e.school.charAt(0))}
         <div>
           <div class="li-item__title">${esc(e.school)}</div>
           <div class="li-item__sub">${esc(e.degree)}</div>
           <div class="li-item__meta">${esc(e.dates)}</div>
           ${e.description ? `<div class="li-item__desc">${liClamp(formatLI(e.description))}</div>` : ''}
+          ${liMedia(e.media, e.school)}
+          ${liChips(e.skills)}
         </div>
       </div>`).join('')
     : needExport;
@@ -747,9 +784,11 @@ function renderLinkedin(): void {
     ? d.projects.map(pr => `
       <div class="li-item li-item--proj">
         <div>
+          ${liMedia(pr.media, pr.title, true)}
           <div class="li-item__title">${esc(pr.title)}${pr.url ? ` · <a href="${esc(pr.url)}" target="_blank" rel="noopener">link</a>` : ''}</div>
           ${pr.dates ? `<div class="li-item__meta">${esc(pr.dates)}</div>` : ''}
           <div class="li-item__desc">${liClamp(formatLI(pr.description))}</div>
+          ${liChips(pr.skills)}
         </div>
       </div>`).join('')
     : needExport;
@@ -771,19 +810,13 @@ function renderLinkedin(): void {
     <div class="li-prof">
       <div class="li-prof__main">
         <section class="li-card li-phead">
-          <div class="li-phead__banner"></div>
+          ${p.banner ? `<div class="li-phead__banner li-phead__banner--img"><img src="${esc(p.banner)}" alt="${esc(p.banner_alt ?? 'Profile banner')}" decoding="async"></div>` : '<div class="li-phead__banner"></div>'}
           ${headAvatar}
           <div class="li-phead__body">
             <h1 class="li-phead__name">${esc(p.name)}</h1>
             <p class="li-phead__headline">${esc(p.headline)}</p>
             <p class="li-phead__loc">${esc(p.location)} · <a href="https://${esc(p.url)}" target="_blank" rel="noopener">Contact info</a></p>
             <p class="li-phead__meta"><strong>${p.connections}</strong> connections · <strong>${p.followers.toLocaleString()}</strong> followers</p>
-            ${p.open_to_work ? `<div class="li-phead__open"><strong>Open to work</strong><br>${esc(p.open_to_work)}</div>` : ''}
-            <div class="li-phead__actions">
-              <button class="li-btn li-btn--primary">Connect</button>
-              <button class="li-btn">Message</button>
-              <button class="li-btn">More</button>
-            </div>
           </div>
         </section>
         ${section('About', aboutBody)}
@@ -803,6 +836,21 @@ function renderLinkedin(): void {
         </div>
       </aside>
     </div>`;
+
+  // YouTube facade (#1959): the iframe is created only on tap (lazy, no third-party request before). The title
+  // link next to every thumbnail stays as the fallback when the embed is refused inside a WebView.
+  view.querySelectorAll<HTMLElement>('.li-yt').forEach(btn => btn.addEventListener('click', () => {
+    const wrap = document.createElement('div');
+    wrap.className = 'li-media__thumb li-media__thumb--playing';
+    const f = document.createElement('iframe');
+    f.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(btn.dataset.yt ?? '')}?autoplay=1&playsinline=1&rel=0`;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.title = btn.getAttribute('aria-label') ?? 'YouTube video';
+    wrap.appendChild(f);
+    btn.closest('.li-media')?.classList.add('li-media--playing');
+    btn.replaceWith(wrap);
+  }));
 
   // Description-text clamp toggles. The view is still `display: none` at this
   // point, so scrollHeight/clientHeight both read 0 here — measuring overflow

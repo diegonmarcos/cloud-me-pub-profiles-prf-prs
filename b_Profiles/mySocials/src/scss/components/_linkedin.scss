@@ -344,3 +344,37 @@ $li-hover: rgba(255, 255, 255, 0.06);  // row/action hover
   &__meta { color: $li-muted; font-size: 10px; }
   &::before { content: '•'; color: $li-muted; margin-right: 8px; }
 }
+
+// Banner image, entry logos, attached media (thumbnail + title, YouTube facade) and skill chips (#1959).
+.li-phead__banner--img {
+  height: auto; aspect-ratio: 1080 / 269; background: #181818;
+  img { display: block; width: 100%; height: 100%; object-fit: cover; }
+}
+.li-item__logo--img {
+  background: #fff; padding: 0; overflow: hidden;
+  img { display: block; width: 100%; height: 100%; object-fit: cover; }
+}
+.li-media {
+  @include flex-row(12px); margin-top: 10px; align-items: center;
+  &--cover { display: block; margin: 0 0 12px; }
+  &--cover &__thumb { width: 100%; aspect-ratio: 16 / 10; }
+  &--cover &__title { display: block; margin-top: 6px; }
+  &--playing { display: block; }
+  &--playing &__thumb { width: 100%; }
+  &__thumb {
+    position: relative; display: block; flex: 0 0 auto; width: 118px; aspect-ratio: 16 / 9;
+    padding: 0; border: 0; border-radius: 6px; overflow: hidden; background: #000; cursor: pointer;
+    img, iframe { display: block; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  }
+  &__play {
+    position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    border-radius: 50%; background: rgba(0, 0, 0, 0.65); display: flex; align-items: center; justify-content: center; pointer-events: none;
+    svg { width: 18px; height: 18px; }
+  }
+  &__title { font-weight: 600; font-size: 13px; line-height: 1.35; color: $li-text; }
+}
+.li-chips { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; }
+.li-chip {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+}
