@@ -1675,7 +1675,7 @@ function bootHubCards3D(): void {
     const T = THREE_NS as unknown as {
       Scene: new () => { add(...o: object[]): void };
       PerspectiveCamera: new (fov: number, asp: number, n: number, f: number) => { position: { set(x: number, y: number, z: number): void } };
-      WebGLRenderer: new (opts: object) => { setSize(w: number, h: number, updateStyle?: boolean): void; setPixelRatio(r: number): void; render(s: object, c: object): void };
+      WebGLRenderer: new (opts: object) => { domElement: HTMLCanvasElement; setSize(w: number, h: number, updateStyle?: boolean): void; setPixelRatio(r: number): void; render(s: object, c: object): void };
       PlaneGeometry: new (w: number, h: number) => object;
       MeshStandardMaterial: new (opts: object) => object;
       Mesh: new (g: object, m: object) => { rotation: { x: number; y: number } };
@@ -1683,23 +1683,33 @@ function bootHubCards3D(): void {
       PointLight: new (c: string, i: number, d: number) => { position: { set(x: number, y: number, z: number): void }; intensity: number };
     };
 
-    type Rig = { renderer: InstanceType<typeof T.WebGLRenderer>; scene: InstanceType<typeof T.Scene>; camera: InstanceType<typeof T.PerspectiveCamera>; mesh: InstanceType<typeof T.Mesh>; light: InstanceType<typeof T.PointLight>; pointer: () => { mx: number; my: number; hover: boolean } };
+    // #1980: ONE shared WebGLRenderer for every card (it used to be one per card: ~14 contexts plus the hero and the four
+    // 3D views blew past the browser's WebGL context limit, so the oldest contexts were lost and the hero and the cards
+    // went blank, and low-memory WebViews crashed). Each card keeps its own scene; the shared canvas is copied into the
+    // card's own 2D canvas, and only cards on screen are drawn.
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    const shared = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    shared.setPixelRatio(1);
+
+    type Rig = { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; w: number; h: number; scene: InstanceType<typeof T.Scene>; camera: InstanceType<typeof T.PerspectiveCamera>; mesh: InstanceType<typeof T.Mesh>; light: InstanceType<typeof T.PointLight>; pointer: () => { mx: number; my: number; hover: boolean }; visible: boolean };
     const rigs: Rig[] = [];
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { const r = rigs.find(x => x.canvas === en.target); if (r) r.visible = en.isIntersecting; });
+    });
 
     canvases.forEach(canvas => {
       const card = canvas.closest<HTMLElement>('.hub-card');
-      if (!card) return;
+      const ctx = canvas.getContext('2d');
+      if (!card || !ctx) return;
       const accent = canvas.dataset.accent || '#8a94ac';
       const W = canvas.clientWidth || 220;
       const H = canvas.clientHeight || 275;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
 
       const scene = new T.Scene();
       const camera = new T.PerspectiveCamera(35, W / H, 0.1, 20);
       camera.position.set(0, 0, 3.2);
-
-      const renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-      renderer.setSize(W, H, false);
 
       const mesh = new T.Mesh(
         new T.PlaneGeometry(2.4, 3),
@@ -1721,17 +1731,23 @@ function bootHubCards3D(): void {
       card.addEventListener('pointerenter', () => { hover = true; });
       card.addEventListener('pointerleave', () => { hover = false; mx = 0; my = 0; });
 
-      rigs.push({ renderer, scene, camera, mesh, light, pointer: () => ({ mx, my, hover }) });
+      const rig: Rig = { canvas, ctx, w: canvas.width, h: canvas.height, scene, camera, mesh, light, pointer: () => ({ mx, my, hover }), visible: false };
+      rigs.push(rig);
+      io.observe(canvas);
     });
 
     const tick = () => {
       rigs.forEach(rig => {
+        if (!rig.visible) return;
         const p = rig.pointer();
         rig.mesh.rotation.y += (p.mx * 0.5 - rig.mesh.rotation.y) * 0.12;
         rig.mesh.rotation.x += (-p.my * 0.4 - rig.mesh.rotation.x) * 0.12;
         rig.light.position.set(p.mx * 1.4, -p.my * 1.1, 1.6);
         rig.light.intensity += ((p.hover ? 9 : 3) - rig.light.intensity) * 0.1;
-        rig.renderer.render(rig.scene as unknown as object, rig.camera as unknown as object);
+        shared.setSize(rig.w, rig.h, false);
+        shared.render(rig.scene as unknown as object, rig.camera as unknown as object);
+        rig.ctx.clearRect(0, 0, rig.w, rig.h);
+        rig.ctx.drawImage(shared.domElement, 0, 0, rig.w, rig.h);
       });
       requestAnimationFrame(tick);
     };
@@ -1744,6 +1760,21 @@ function bootHubCards3D(): void {
 // Static (single-frame, no animation loop) hero render: a lit object in a dark
 // room, viewed head-on. Purely decorative — errors are swallowed so a WebGL
 // failure never breaks the rest of the hub.
+// #1980: when WebGL is unavailable or the context is lost the hero is a painted dark-room gradient, never a blank box.
+function heroFallback(canvas: HTMLCanvasElement): void {
+  try {
+    const W = canvas.clientWidth || 320, H = 220;
+    const c = canvas.cloneNode(false) as HTMLCanvasElement; // a canvas that tried WebGL cannot hand out a 2D context
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    const g = ctx.createRadialGradient(W * 0.5, H * 0.45, 10, W * 0.5, H * 0.5, Math.max(W, H) * 0.7);
+    g.addColorStop(0, '#2b3350'); g.addColorStop(0.55, '#141827'); g.addColorStop(1, '#0a0c12');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    canvas.replaceWith(c);
+  } catch { /* decorative */ }
+}
+
 function bootHero3D(): void {
   const canvas = document.getElementById('me-hero3d') as HTMLCanvasElement | null;
   if (!canvas) return;
@@ -1806,6 +1837,7 @@ function bootHero3D(): void {
     renderer.render(scene as unknown as object, camera as unknown as object);
   } catch (err) {
     console.error('[hero3d] boot failed', err);
+    heroFallback(canvas);
   }
 }
 
@@ -3386,10 +3418,16 @@ function init(): void {
   renderYoutube();
   renderICQ();
   renderMySocials();
-  renderShelf();
-  renderVinyl();
-  renderBarCellar();
-  renderTheater();
+  // #1980: the four 3D views (Three.js + one WebGL context each) boot only when their own theme is the active one.
+  // Booting all four on every page (the home page included) crashed the renderer on low-memory / software-GL clients.
+  const boot3d: Record<string, () => void> = { shelf: renderShelf, vinyl: renderVinyl, 'bar-cellar': renderBarCellar, theater: renderTheater };
+  const booted3d = new Set<string>();
+  const maybeBoot3d = (): void => {
+    const t = document.documentElement.getAttribute('data-theme') || '';
+    if (boot3d[t] && !booted3d.has(t)) { booted3d.add(t); boot3d[t](); }
+  };
+  maybeBoot3d();
+  new MutationObserver(maybeBoot3d).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   renderMenu();
   renderStory();
   renderFacebook();

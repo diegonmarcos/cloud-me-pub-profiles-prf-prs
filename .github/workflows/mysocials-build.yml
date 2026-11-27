@@ -1,0 +1,63 @@
+# mySocials media + bundle build (#1980). The page ships COMMITTED dist/ (the deployer overlays it), so this job regenerates
+# the generated parts from their sources and commits them back to main:
+#   - gen-media.py: same-origin WebP thumbnails + manifest from the media the data files name (videos = first-frame posters)
+#   - esbuild: dist/script.js from src/typescript/main.ts (same flags as build.json), dist/img-fallback.js from src/js
+#   - sw-rehash.py: service-worker hash table + cache name
+# Nothing is committed unless the render guard (test-media-render.js: zero broken images, posters decode, no renderer crash)
+# is green on the freshly built dist, and the mutation step proves the guard goes red on one dead thumbnail.
+name: mySocials build
+on:
+  push:
+    paths: ['b_Profiles/mySocials/src/typescript/**', 'b_Profiles/mySocials/src/js/img-fallback.js', 'b_Profiles/mySocials/gen-media.py',
+            'b_Profiles/mySocials/src/data/data-*.json.js', 'b_Profiles/mySocials/test-media-render.js', '.github/workflows/mysocials-build.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mysocials-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: b_Profiles/mySocials
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tools
+        run: |
+          pip install --quiet pillow
+          ffmpeg -version | head -1
+          npm i --no-save --no-audit --no-fund esbuild@0.20.2 three@0.162.0 playwright
+          npx playwright install --with-deps chromium
+      - name: Thumbnails and manifest
+        run: python3 gen-media.py --workers 8
+      - name: Bundle
+        run: |
+          npx esbuild src/typescript/main.ts --bundle --format=iife --target=es2020 --minify --outfile=dist/script.js
+          cp src/js/img-fallback.js dist/img-fallback.js
+          python3 sw-rehash.py
+      - name: Render guard on the built dist
+        run: node test-media-render.js --out "$RUNNER_TEMP/render-report.json"
+      - name: Mutation, the guard must go red on one dead thumbnail
+        run: |
+          rm -rf "$RUNNER_TEMP/dist-mut" && cp -r dist "$RUNNER_TEMP/dist-mut"
+          sed -i 's#"facebook-diegonmarcos/posts/455362317817387.jpg":"[0-9a-f]\{12\}#"facebook-diegonmarcos/posts/455362317817387.jpg":"deadbeef1980#' "$RUNNER_TEMP/dist-mut/mysocials-media-manifest.js"
+          grep -c deadbeef1980 "$RUNNER_TEMP/dist-mut/mysocials-media-manifest.js" | grep -v '^0$' || { echo 'mutation did not apply'; exit 2; }
+          if node test-media-render.js --dist "$RUNNER_TEMP/dist-mut" --only facebook-diegonmarcos; then echo 'render guard stayed green on a dead thumbnail'; exit 1; fi
+          echo 'mutation went red, as required'
+      - name: Commit generated files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A b_Profiles/mySocials/src/media-t b_Profiles/mySocials/src/js/mysocials-media-manifest.js b_Profiles/mySocials/dist b_Profiles/mySocials/media-report.json
+          if git diff --cached --quiet; then echo 'nothing to commit'; exit 0; fi
+          git commit -m "mySocials: thumbnails, manifest and bundle regenerated (#1980) [skip ci]" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" -m "Claude-Session: https://claude.ai/code/session_0172rQF2sCRHaeMtr1E7pzQ8"
+          for i in 1 2 3 4 5; do git pull --no-rebase --no-edit origin main && git push origin HEAD:main && exit 0; sleep 5; done
+          exit 1

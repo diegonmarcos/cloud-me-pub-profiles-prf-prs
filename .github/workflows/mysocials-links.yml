@@ -64,3 +64,8 @@ jobs:
       - name: Check the live site
         if: ${{ github.event_name == 'schedule' || inputs.live }}
         run: node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json" || node test-media-links.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/live-report.json"
+      - name: Render guard, the committed dist (#1980)
+        run: node test-media-render.js --out "$RUNNER_TEMP/render-dist.json"
+      - name: Render guard, the deployed page (#1980)
+        if: ${{ github.event_name == 'schedule' || inputs.live }}
+        run: node test-media-render.js --dist dist --base https://diegonmarcos.github.io/mySocials/ --out "$RUNNER_TEMP/render-live.json"
