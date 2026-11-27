@@ -201,7 +201,22 @@
         "style-shelf.css",
         "style-vinyl.css",
         "style-story.css",
-        "style-facebook-diegonmarcos.css"
+        "style-facebook-diegonmarcos.css",
+        "img-fallback.js",
+        "data-bar-cellar.json.js",
+        "data-facebook-diegonmarcos.json.js",
+        "data-ig0-diegocnmarcos_.json.js",
+        "data-ig1-diegocmarcos_.json.js",
+        "data-ig2-diegonmarcos.json.js",
+        "data-linkedin.json.js",
+        "data-menu.json.js",
+        "data-mySocials.json.js",
+        "data-pinterest.json.js",
+        "data-shelf.json.js",
+        "data-theater.json.js",
+        "data-tidal.json.js",
+        "data-vinyl.json.js",
+        "data-youtube.json.js"
       ],
       "precache": [
         "./",

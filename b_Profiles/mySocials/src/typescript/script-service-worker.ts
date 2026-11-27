@@ -150,11 +150,20 @@ self.addEventListener('fetch', (event) => {
     // Cache hit: re-verify against BUILD_ASSET_HASHES if we have an
     // expected hash for this asset. Poisoned entries (corrupt body,
     // wrong content-type cached by an older buggy SW version) get
-    // evicted and the request falls through to network. Assets without
-    // a known hash trust the cache — same behaviour as before.
+    // evicted and the request falls through to network. #1957 assets
+    // without a known hash (data-*.json.js companions, media) are
+    // NETWORK-FIRST: the cached copy is only the offline fallback. They
+    // used to trust the cache for ever, so a client that cached the data
+    // before a data fix kept the dead media URLs.
     if (hit) {
       const expected = BUILD_ASSET_HASHES[scopeRelative(req.url)];
-      if (!expected) return hit;
+      if (!expected) {
+        try {
+          const res = await fetch(req);
+          if (res.ok && await isCacheable(req, res)) { cache.put(req, res.clone()).catch(() => undefined); return res; }
+        } catch { /* offline: the cached copy below */ }
+        return hit;
+      }
       try {
         const got = await sha256_12(await hit.clone().arrayBuffer());
         if (got === expected) return hit;
