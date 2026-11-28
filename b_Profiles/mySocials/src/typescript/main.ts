@@ -1691,10 +1691,10 @@ function bootHubCards3D(): void {
     const shared = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     shared.setPixelRatio(1);
 
-    type Rig = { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; w: number; h: number; scene: InstanceType<typeof T.Scene>; camera: InstanceType<typeof T.PerspectiveCamera>; mesh: InstanceType<typeof T.Mesh>; light: InstanceType<typeof T.PointLight>; pointer: () => { mx: number; my: number; hover: boolean }; visible: boolean };
+    type Rig = { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; w: number; h: number; scene: InstanceType<typeof T.Scene>; camera: InstanceType<typeof T.PerspectiveCamera>; mesh: InstanceType<typeof T.Mesh>; light: InstanceType<typeof T.PointLight>; pointer: () => { mx: number; my: number; hover: boolean }; visible: boolean; active: number };
     const rigs: Rig[] = [];
     const io = new IntersectionObserver(entries => {
-      entries.forEach(en => { const r = rigs.find(x => x.canvas === en.target); if (r) r.visible = en.isIntersecting; });
+      entries.forEach(en => { const r = rigs.find(x => x.canvas === en.target); if (r) { r.visible = en.isIntersecting; if (r.visible) r.active = 90; } });
     });
 
     canvases.forEach(canvas => {
@@ -1723,22 +1723,27 @@ function bootHubCards3D(): void {
       scene.add(light as unknown as object);
 
       let mx = 0, my = 0, hover = false;
+      // #1980: a card is redrawn only for a short burst after it appears or the pointer touches it, then it rests (software GL
+      // emulators and weak phones were saturated by 60 fps redraws of a static plane)
+      const wake = () => { rig.active = 90; };
       card.addEventListener('pointermove', (e: PointerEvent) => {
         const r = card.getBoundingClientRect();
         mx = ((e.clientX - r.left) / r.width) * 2 - 1;
         my = ((e.clientY - r.top) / r.height) * 2 - 1;
+        wake();
       });
-      card.addEventListener('pointerenter', () => { hover = true; });
-      card.addEventListener('pointerleave', () => { hover = false; mx = 0; my = 0; });
+      card.addEventListener('pointerenter', () => { hover = true; wake(); });
+      card.addEventListener('pointerleave', () => { hover = false; mx = 0; my = 0; wake(); });
 
-      const rig: Rig = { canvas, ctx, w: canvas.width, h: canvas.height, scene, camera, mesh, light, pointer: () => ({ mx, my, hover }), visible: false };
+      const rig: Rig = { canvas, ctx, w: canvas.width, h: canvas.height, scene, camera, mesh, light, pointer: () => ({ mx, my, hover }), visible: false, active: 90 };
       rigs.push(rig);
       io.observe(canvas);
     });
 
     const tick = () => {
       rigs.forEach(rig => {
-        if (!rig.visible) return;
+        if (!rig.visible || rig.active <= 0) return;
+        rig.active--;
         const p = rig.pointer();
         rig.mesh.rotation.y += (p.mx * 0.5 - rig.mesh.rotation.y) * 0.12;
         rig.mesh.rotation.x += (-p.my * 0.4 - rig.mesh.rotation.x) * 0.12;
